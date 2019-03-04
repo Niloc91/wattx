@@ -9,23 +9,20 @@ import math
 def scapeRanking():
     producer = KafkaProducer(bootstrap_servers='localhost:9092')
 
-    limit = 201
-    #Limit from api is 100
-    #Pagnate afterwards
+    limit = 100
     num_pages = math.ceil(limit/100)
-
-    rankingTable = {}
+    rankingTable = []
     for i in range(0, num_pages):
+
         response = requests.get('https://min-api.cryptocompare.com/data/top/mktcapfull?limit=100&tsym=USD&page='+str(i)+'&api_key=81ac4735d8ae77744d5f68b89aad0df9925188443819bd529f3e160c8ac75f74')
         rankingData = response.json()['Data']
+
+
         for x in rankingData:
-            #rankingTable.append(x['CoinInfo']['FullName'])
-            rankingTable[x['CoinInfo']['Name']] = x['CoinInfo']['FullName']
+            rankingTable.append(x['CoinInfo']['Name'])
 
-
-    print("Entries added:"+str(len(rankingTable.keys())))
-
-
+    print("Entries added:"+str(len(rankingTable)))
+    print(json.dumps(rankingTable))
 
     producer.send('ranking', json.dumps(rankingTable).encode('utf-8'))
     producer.close()
@@ -39,11 +36,13 @@ def main():
         print("sending....")
 
 
+enable_logging=False
 if __name__ == "__main__":
 
-    #logging.basicConfig(
-    #    format='%(asctime)s.%(msecs)s:%(name)s:%(thread)d:%(levelname)s:%(process)d:%(message)s',
-    #    level=logging.INFO
-    #)
+    if enable_logging :
+        logging.basicConfig(
+            format='%(asctime)s.%(msecs)s:%(name)s:%(thread)d:%(levelname)s:%(process)d:%(message)s',
+            level=logging.INFO
+        )
 
     main()
