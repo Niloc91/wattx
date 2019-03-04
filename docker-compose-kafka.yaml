@@ -1,0 +1,11 @@
+version: '3'
+services:
+  kafka:
+    image: spotify/kafka
+    ports:
+    - "2181:2181"
+    - "9092:9092"
+    environment:
+      ADVERTISED_HOST: 0.0.0.0
+      ADVERTISED_PORT: 9092
+      KAFKA_CREATE_TOPICS: "ranking:1:1,rankingwithprice:1:1"
