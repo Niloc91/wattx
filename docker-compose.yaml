@@ -1,20 +1,28 @@
-
 version: '3'
 services:
-  http:
-    image: local/http:latest
-    ports:
-      - "5000:5000"
-  pricing:
-    image: local/pricing:latest
-  ranking:
-    image: local/ranking:latest
   kafka:
     image: spotify/kafka
     ports:
       - "2181:2181"
       - "9092:9092"
     environment:
-      ADVERTISED_HOST: 0.0.0.0
+      ADVERTISED_HOST: kafka
       ADVERTISED_PORT: 9092
       KAFKA_CREATE_TOPICS: "ranking:1:1,rankingwithprice:1:1"
+  http:
+    image: local/http:latest
+    ports:
+      - "5000:5000"
+    depends_on:
+      - kafka
+    restart: on-failure
+  pricing:
+    image: local/pricing:latest
+    depends_on:
+      - kafka
+    restart: on-failure
+  ranking:
+    image: local/ranking:latest
+    depends_on:
+      - kafka
+    restart: on-failure

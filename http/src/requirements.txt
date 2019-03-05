@@ -1,2 +1,2 @@
-kafka-python
+kafka-python>=0.10.2.0
 flask

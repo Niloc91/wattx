@@ -3,7 +3,12 @@ build.all:
 	make -C pricing build
 	make -C ranking build
 
-app.up:
+services.up:
+	make -C http app.up
+	make -C pricing app.up
+	make -C ranking app.up
+
+app.up: build.all
 	docker-compose up
 
 install:

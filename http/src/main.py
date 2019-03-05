@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, Response
 from kafka import KafkaConsumer
 import threading
 import time
@@ -7,28 +7,30 @@ import logging
 import os
 app = Flask(__name__)
 
-def latestPrices():
-    consumer = KafkaConsumer(bootstrap_servers='localhost:9092',
-                             auto_offset_reset='latest',
-                             enable_auto_commit=False,
-                             value_deserializer=lambda m: json.loads(m.decode('utf-8')))
-    consumer.subscribe(['rankingwithprice'])
 
-    data = []
-    for message in consumer:
-        print (message.value)
-        data = message.value
+kafka_host="kafka:9092"
 
-    return data
+@app.route('/test')
+def test():
+    return "HELLO"
 
-pricing = threading.Thread(target=latestPrices)
-pricing.start()
-latestData = pricing.join()
 
 
 @app.route('/')
 def pricelist():
-    return latestData
+    consumer = KafkaConsumer(bootstrap_servers=kafka_host,
+                             auto_offset_reset='earliest',
+                             enable_auto_commit=False,
+                             value_deserializer=lambda m: json.loads(m.decode('utf-8')))
+    consumer.subscribe(['rankingwithprice'])
+    consumer.poll()
+    for message in consumer:
+        print (message.value)
+        return json.dumps(message.value)
+
+
+
+
 
 if __name__ == '__main__':
 
@@ -37,4 +39,9 @@ if __name__ == '__main__':
                '%(levelname)s:%(process)d:%(message)s',
         level=logging.INFO
     )
-    app.run()
+
+    app.run(host='0.0.0.0')
+
+
+
+

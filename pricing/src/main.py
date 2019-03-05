@@ -6,10 +6,10 @@ from kafka import KafkaConsumer, KafkaProducer
 import requests
 import operator
 
-
+kafka_host="kafka:9092"
 
 def pullLatestRanking():
-    consumer = KafkaConsumer(bootstrap_servers='localhost:9092',
+    consumer = KafkaConsumer(bootstrap_servers=kafka_host,
                              auto_offset_reset='latest',
                              enable_auto_commit=False,
                              value_deserializer=lambda m: json.loads(m.decode('utf-8')))
@@ -32,7 +32,7 @@ def pullLatestRanking():
         RankingTable =  sorted(RankingTable.items(), key=lambda kv: kv[1], reverse=True)
         #Send to kafka
         print(json.dumps(RankingTable))
-        producer = KafkaProducer(bootstrap_servers='localhost:9092')
+        producer = KafkaProducer(bootstrap_servers=kafka_host)
         producer.send('rankingwithprice', json.dumps(RankingTable).encode('utf-8'))
         producer.close()
 

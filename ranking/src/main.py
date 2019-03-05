@@ -5,9 +5,12 @@ from kafka import KafkaConsumer, KafkaProducer
 import requests
 import math
 
+
+kafka_host="kafka:9092"
+
 #Scrape ranking
 def scapeRanking():
-    producer = KafkaProducer(bootstrap_servers='localhost:9092')
+    producer = KafkaProducer(bootstrap_servers=kafka_host)
 
     limit = 100
     num_pages = math.ceil(limit/100)
